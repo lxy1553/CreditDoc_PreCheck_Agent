@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "creditdoc-precheck-agent"
+version = "0.1.0"
+description = "Private, evidence-grounded policy retrieval for a credit document precheck agent"
+requires-python = ">=3.9"
+dependencies = [
+  "fastapi>=0.95,<1",
+  "uvicorn>=0.23,<1"
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7,<9", "httpx>=0.24,<1"]
+
+[project.scripts]
+creditdoc-rag = "creditdoc_precheck_agent.cli:main"
+creditdoc-rag-api = "creditdoc_precheck_agent.api:main"
+creditdoc-rag-eval = "creditdoc_precheck_agent.evaluate:main"
+creditdoc-rag-answer-eval = "creditdoc_precheck_agent.evaluate_answers:main"
+creditdoc-precheck-eval = "creditdoc_precheck_agent.evaluate_precheck:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+creditdoc_precheck_agent = ["static/*.html", "static/*.js"]

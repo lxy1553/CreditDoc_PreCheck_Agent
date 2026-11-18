@@ -1,0 +1,45 @@
+{
+  "version": "demo-precheck-1.0",
+  "confidence_threshold": 0.85,
+  "required_any": [
+    {
+      "id": "income-evidence",
+      "label": "收入证明或近三个月收入流水至少一项",
+      "document_types": ["income_proof", "bank_statement"],
+      "rule_question": "收入证明或收入流水的材料要求是什么"
+    },
+    {
+      "id": "application-form",
+      "label": "贷款申请表",
+      "document_types": ["application_form"],
+      "rule_question": "贷款申请表需要检查哪些内容"
+    },
+    {
+      "id": "identity-document",
+      "label": "身份证明材料",
+      "document_types": ["identity_document"],
+      "rule_question": "身份证明材料需要检查哪些内容"
+    }
+  ],
+  "comparisons": [
+    {
+      "field": "applicant_name",
+      "label": "申请人姓名",
+      "document_types": ["application_form", "identity_document"],
+      "rule_question": "申请表与身份证明的姓名不一致时如何处理"
+    },
+    {
+      "field": "id_number",
+      "label": "证件号码",
+      "document_types": ["application_form", "identity_document"],
+      "rule_question": "申请表与身份证明的证件号码不一致时如何处理"
+    },
+    {
+      "field": "monthly_income",
+      "label": "月收入",
+      "document_types": ["application_form", "income_proof", "bank_statement"],
+      "numeric_tolerance": 0,
+      "rule_question": "申请表月收入与收入证明或收入流水不一致时如何处理"
+    }
+  ]
+}

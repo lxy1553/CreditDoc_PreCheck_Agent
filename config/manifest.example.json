@@ -1,0 +1,17 @@
+{
+  "documents": [
+    {
+      "doc_id": "POLICY-EXAMPLE-001",
+      "source": "example-policy.md",
+      "title": "Example only - replace with an approved internal policy",
+      "version": "1.0",
+      "status": "approved",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "institution": "REPLACE_WITH_INSTITUTION_ID",
+      "scope": {
+        "product_line": ["REPLACE_WITH_PRODUCT_LINE"]
+      }
+    }
+  ]
+}

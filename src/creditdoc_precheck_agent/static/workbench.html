@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>本地模拟预审工作台</title>
+  <style>
+    :root { color-scheme: light; --ink:#172b4d; --muted:#65758b; --line:#dce4ee; --blue:#2159c5; --blue-soft:#edf3ff; --green:#18794e; --amber:#9b5d00; --red:#a23b34; --paper:#f4f7fb; }
+    * { box-sizing:border-box } body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif }
+    header { background:#102a56; color:#fff; padding:22px max(24px,calc((100vw - 1160px)/2)); display:flex; align-items:center; justify-content:space-between; gap:16px }
+    header h1 { font-size:21px; margin:0 0 3px } header p { margin:0; color:#cbd8ef; font-size:13px }
+    .demo-pill { border:1px solid #8ba5d1; color:#e4edff; padding:5px 10px; border-radius:20px; white-space:nowrap; font-size:12px }
+    main { max-width:1160px; margin:24px auto; padding:0 20px 40px } .notice { background:#fff8e8; color:#704900; border:1px solid #f0dca9; border-radius:10px; padding:12px 15px; margin-bottom:18px }
+    .grid { display:grid; grid-template-columns: minmax(300px, .86fr) minmax(400px,1.4fr); gap:18px; align-items:start }
+    .card { background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 3px 14px #1a36590a; padding:19px; margin-bottom:18px }
+    h2 { margin:0 0 14px; font-size:17px } h3 { margin:14px 0 7px; font-size:14px } .muted { color:var(--muted); font-size:13px }
+    label { display:block; margin:12px 0 5px; font-size:13px; color:#485a72; font-weight:600 }
+    input,textarea { width:100%; border:1px solid #cbd5e2; border-radius:7px; padding:10px 11px; font:inherit; color:var(--ink); background:#fff }
+    input:focus,textarea:focus { outline:2px solid #b8cdf9; border-color:var(--blue) } textarea { min-height:78px; resize:vertical }
+    button { border:0; border-radius:7px; background:var(--blue); color:white; padding:10px 15px; font:inherit; font-weight:600; font-size:14px; cursor:pointer }
+    button:hover { background:#1748a8 } button:disabled { opacity:.55; cursor:wait } .secondary { background:var(--blue-soft); color:var(--blue) } .secondary:hover { background:#dce8ff }
+    .button-row { display:flex; gap:9px; align-items:center; margin-top:14px } .status { padding:10px 12px; background:#f2f5f9; border-radius:8px; color:#41536c; margin-top:13px; font-size:13px }
+    .status.ok { background:#edf8f1; color:var(--green) } .status.warn { background:#fff5e5; color:var(--amber) } .status.error { background:#fff0ef; color:var(--red) }
+    .issue { border:1px solid var(--line); border-radius:9px; padding:13px; margin:10px 0 } .issue-title { display:flex; gap:9px; align-items:center; font-weight:700 }
+    .issue-facts { margin:9px 0 0; padding-left:19px; font-size:13px } .issue-facts li { margin:5px 0 } .issue-facts li:first-child { font-weight:600 }
+    .tag { padding:2px 8px; border-radius:20px; font-size:11px; background:#fff2d9; color:#865400 }
+    details { margin-top:9px } summary { cursor:pointer; color:var(--blue); font-size:13px } pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#f6f8fb; border-radius:7px; padding:10px; font:12px/1.5 ui-monospace,monospace; color:#33445e }
+    .metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:10px } .metric { background:#f6f8fb; padding:11px; border-radius:8px } .metric strong { display:block; font-size:19px } .metric span { color:var(--muted); font-size:12px }
+    .empty { color:var(--muted); padding:12px 0; font-size:14px } .answer { white-space:pre-wrap; margin:10px 0; font-size:14px }
+    .history-list { display:grid; gap:7px } .history-item { width:100%; text-align:left; font-weight:500; font-size:13px; padding:9px 11px }
+    footer { color:var(--muted); text-align:center; font-size:12px; padding:8px }
+    @media(max-width:780px) { .grid { grid-template-columns:1fr } header { padding:18px 20px } main { margin-top:15px } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>贷前材料预审 · 本地模拟工作台</h1><p>查看模拟材料解析、预审规则命中、证据来源和异步处理状态</p></div>
+    <span class="demo-pill">虚构数据 · 不做授信决策</span>
+  </header>
+  <main>
+    <div class="notice"><strong>仅用于本地演示。</strong>上传内容会被固定模拟解析器忽略，结果来自预置虚构字段，不是真实 OCR，也不代表生产评估结果。</div>
+    <div id="file-warning" class="notice" role="alert" hidden><strong>工作台需要通过本地 API 服务打开。</strong> 当前直接打开的是 HTML 文件，按钮无法连接预审服务。请在项目目录运行 <code>make run-demo</code>，再打开 <a href="http://127.0.0.1:8080/">http://127.0.0.1:8080/</a>。</div>
+    <div class="grid">
+      <section>
+        <div class="card">
+          <h2>运行模拟预审</h2>
+          <p id="scenario-description" class="muted">三份虚构材料齐全，姓名一致；申请表收入 12,000 元、收入证明 10,000 元。</p>
+          <label for="token">本地演示令牌</label><input id="token" value="local-demo-only-change-this" autocomplete="off" spellcheck="false">
+          <label for="asof">规则适用日期</label><input id="asof" type="date" value="2026-10-03">
+          <label for="scenario">模拟场景</label>
+          <select id="scenario" style="width:100%;border:1px solid #cbd5e2;border-radius:7px;padding:10px 11px;font:inherit;color:var(--ink);background:#fff">
+            <option value="income-difference">材料齐全：月收入不一致</option>
+            <option value="missing-material">缺件：只提交申请表</option>
+            <option value="low-confidence">识别不确定：申请表扫描模糊</option>
+            <option value="consistent">材料一致：月收入相同</option>
+            <option value="rule-evidence-missing">无适用规则证据：转人工核实</option>
+          </select>
+          <div class="button-row"><button id="run">开始模拟预审</button><span id="job-id" class="muted"></span></div>
+          <div id="job-status" class="status" role="status">等待提交。点击上方按钮开始一个虚构案例。</div>
+          <div class="button-row"><button id="refresh-job" class="secondary" hidden>刷新任务状态</button></div>
+        </div>
+        <div class="card">
+          <h2>处理时效概览</h2>
+          <div id="metrics" class="metrics"><div class="metric"><strong>—</strong><span>及时去向</span></div><div class="metric"><strong>—</strong><span>及时 Agent 结果</span></div><div class="metric"><strong>—</strong><span>队列深度</span></div></div>
+          <div class="button-row"><button id="refresh-slo" class="secondary">刷新统计</button><span id="slo-status" class="muted"></span></div>
+          <p class="muted">去向 SLO 与 Agent 结果 SLO 分开显示；转人工不计作 Agent 结果。</p>
+        </div>
+        <div class="card">
+          <h2>最近预审任务</h2>
+          <div id="history-items" class="history-list"><div class="empty">尚无任务记录。</div></div>
+          <div class="button-row"><button id="refresh-history" class="secondary">刷新任务列表</button><span id="history-status" class="muted"></span></div>
+        </div>
+      </section>
+      <section>
+        <div class="card">
+          <h2>预审结果</h2><div id="result" class="empty">任务完成后会显示检查项、字段差异和规则依据。</div>
+        </div>
+        <div class="card">
+          <h2>规则问答</h2>
+          <label for="question">审核问题</label><textarea id="question">申请表月收入和收入证明金额不一致时，应该如何处理？</textarea>
+          <div class="button-row"><button id="ask" class="secondary">检索模拟规则</button></div>
+          <div id="answer" class="empty">回答仅引用本地模拟规则，仍需人工核实。</div>
+        </div>
+      </section>
+    </div>
+    <footer>CreditDoc PreCheck Agent · local synthetic demo · 规则资料与申请材料均为虚构示例</footer>
+  </main>
+  <script type="module">
+    import { formatHistoryEntry, formatIssue, pollJobUntilTerminal, presentJob } from "/static/workbench-render.js";
+    const $ = (id) => document.getElementById(id);
+    const institution = "DEMO_ONLY", productLine = "DEMO_PERSONAL_BUSINESS_LOAN";
+    const label = {missing_material:"缺少必要材料",field_difference:"字段信息不一致",low_ocr_confidence:"识别置信度偏低"};
+    const scenarioFiles = {
+      "income-difference": ["demo-application.pdf","demo-identity.pdf","demo-income-proof.pdf"],
+      "missing-material": ["demo-application.pdf"],
+      "low-confidence": ["demo-application-blurry.pdf","demo-identity.pdf","demo-income-proof.pdf"],
+      "consistent": ["demo-application.pdf","demo-identity.pdf","demo-income-proof-matching.pdf"],
+      "rule-evidence-missing": ["demo-application.pdf","demo-identity.pdf","demo-income-proof.pdf"]
+    };
+    const scenarioDescriptions = {
+      "income-difference":"三份虚构材料齐全，姓名一致；申请表收入 12,000 元、收入证明 10,000 元。",
+      "missing-material":"仅提交虚构申请表，演示必需收入证明和身份证明缺失时的提示。",
+      "low-confidence":"申请表姓名字段置信度为 0.62，低于模拟规则阈值；同时保留收入差异供复核。",
+      "consistent":"三份虚构材料齐全，姓名与月收入字段一致，用于检查无差异路径。",
+      "rule-evidence-missing":"收入存在差异；规则日期设为 2025-12-31（模拟规则生效前），预审应标记人工核实。"
+    };
+    const activeJobKey="creditdoc-precheck-active-job";
+    let hardDeadlineSeconds=180;
+    const token = () => $("token").value.trim();
+    function setStatus(text, kind="") { const el=$("job-status"); el.textContent=text; el.className="status "+kind; }
+    function el(tag, text, cls) { const node=document.createElement(tag); if(text!==undefined) node.textContent=text; if(cls) node.className=cls; return node; }
+    function renderResult(result) {
+      const root=$("result"); root.replaceChildren();
+      const title=el("p", result.decision === "no_credit_decision" ? "本次输出不包含授信决定，需由审核员确认。" : "请审核员检查下列事项。", "muted"); root.append(title);
+      if(result.summary) {
+        const summary=el("div",undefined,"metrics");
+        [[result.summary.missing_material_count||0,"缺少材料"],[result.summary.field_difference_count||0,"字段不一致"],[result.summary.low_confidence_count||0,"低置信度"]].forEach(([value,name])=>{const m=el("div",undefined,"metric");m.append(el("strong",String(value)));m.append(el("span",name));summary.append(m);});
+        root.append(summary);
+      }
+      if(!result.issues || !result.issues.length) { root.append(el("div","未发现配置规则中的模拟问题；仍需人工核对材料完整性。","empty")); return; }
+      for(const issue of result.issues) {
+        const box=el("article",undefined,"issue");
+        const head=el("div",undefined,"issue-title"); head.append(el("span",label[issue.category]||issue.category)); head.append(el("span",issue.severity||"待复核","tag")); box.append(head);
+        if(issue.message) box.append(el("p",issue.message,"muted"));
+        if(issue.rule_evidence_status && issue.rule_evidence_status !== "found")
+          box.append(el("p",issue.rule_evidence_message||"缺少规则依据，请人工核实。","status warn"));
+        const facts=formatIssue(issue);
+        if(facts.length) { const list=el("ul",undefined,"issue-facts"); facts.forEach((fact)=>list.append(el("li",fact))); box.append(list); }
+        if(issue.details || issue.rule_evidence?.length) { const d=el("details"); d.append(el("summary","查看完整技术明细")); d.append(el("pre",JSON.stringify({details:issue.details,rule_evidence:issue.rule_evidence},null,2))); box.append(d); }
+        root.append(box);
+      }
+    }
+    async function api(path, options={}) {
+      const response=await fetch(path,{...options,headers:{"Authorization":"Bearer "+token(),...(options.headers||{})}});
+      let body; try { body=await response.json(); } catch { body={detail:response.statusText}; }
+      if(!response.ok) throw new Error(body.detail||("请求失败："+response.status)); return body;
+    }
+    function b64(value) { return btoa(unescape(encodeURIComponent(value))); }
+    function showJob(job) {
+      const view=presentJob(job);
+      setStatus(view.status,view.tone);
+      if(view.kind==="completed") renderResult(view.result);
+      if(view.kind==="manual_review") $("result").replaceChildren(el("div",view.message,"empty"));
+    }
+    async function refreshJob() {
+      const jobId=sessionStorage.getItem(activeJobKey);
+      if(!jobId) { setStatus("没有待刷新的任务。","warn"); return; }
+      $("refresh-job").disabled=true;
+      try {
+        const outcome=await pollJobUntilTerminal(jobId,(id)=>api("/v1/precheck/jobs/"+encodeURIComponent(id)),{
+          intervalMs:350,maxDurationMs:(hardDeadlineSeconds+5)*1000,onUpdate:showJob,
+        });
+        if(outcome.kind==="terminal") {
+          sessionStorage.removeItem(activeJobKey); $("refresh-job").hidden=true;
+        } else {
+          setStatus("仍在处理中。任务号已保留，可点击“刷新任务状态”继续查询。","warn");
+        }
+        await refreshSlo();
+        await refreshHistory();
+      } catch(error) {
+        setStatus("查询任务失败："+error.message+"。任务号已保留，可稍后重试。","error");
+      } finally {
+        $("refresh-job").disabled=false;
+        $("run").disabled=Boolean(sessionStorage.getItem(activeJobKey));
+      }
+    }
+    async function runJob() {
+      $("run").disabled=true; $("result").replaceChildren(el("div","正在提交模拟材料…","empty"));
+      try {
+        const files=scenarioFiles[$("scenario").value].map(filename=>({filename,content_type:"application/pdf",content_base64:b64("synthetic-demo-placeholder") }));
+        const job=await api("/v1/precheck/upload-jobs",{method:"POST",headers:{"Content-Type":"application/json","Idempotency-Key":"workbench-"+crypto.randomUUID()},body:JSON.stringify({institution,product_line:productLine,as_of:$("asof").value,documents:files})});
+        sessionStorage.setItem(activeJobKey,job.job_id);
+        $("job-id").textContent="任务号 "+job.job_id;
+        $("refresh-job").hidden=false;
+        setStatus(job.workbench_status+"…");
+        await refreshHistory();
+        await refreshJob();
+      } catch(error) { setStatus(error.message,"error"); $("run").disabled=false; }
+    }
+    async function refreshSlo() {
+      $("refresh-slo").disabled=true;
+      try { const data=await api("/v1/precheck/slo"); hardDeadlineSeconds=data.deadline_seconds||180; $("metrics").replaceChildren();
+        [[data.timely_disposition_count||0,"及时去向"],[data.timely_agent_result_count||0,"及时 Agent 结果"],[data.queue_depth||0,"队列深度"]].forEach(([value,name])=>{const m=el("div",undefined,"metric");m.append(el("strong",String(value)));m.append(el("span",name));$("metrics").append(m);});
+        $("slo-status").textContent="队列截止 "+data.queue_timeout_seconds+" 秒 · 硬截止 "+data.deadline_seconds+" 秒";
+      } catch(error) { $("slo-status").textContent=error.message; }
+      finally { $("refresh-slo").disabled=false; }
+    }
+    async function refreshHistory() {
+      $("refresh-history").disabled=true;
+      const root=$("history-items");
+      try {
+        const data=await api("/v1/precheck/history?limit=10");
+        root.replaceChildren();
+        if(!data.items.length) root.append(el("div","尚无任务记录。","empty"));
+        for(const job of data.items) {
+          const button=el("button",formatHistoryEntry(job),"secondary history-item");
+          button.type="button";
+          button.addEventListener("click",()=>openHistoryJob(job.job_id));
+          root.append(button);
+        }
+        $("history-status").textContent="显示最近 "+data.items.length+" 条";
+      } catch(error) {
+        root.replaceChildren(el("div","读取任务列表失败："+error.message,"empty"));
+      } finally { $("refresh-history").disabled=false; }
+    }
+    async function openHistoryJob(jobId) {
+      try {
+        const job=await api("/v1/precheck/jobs/"+encodeURIComponent(jobId));
+        $("job-id").textContent="任务号 "+job.job_id;
+        if(["completed","manual_review"].includes(job.status)) {
+          sessionStorage.removeItem(activeJobKey);
+          $("refresh-job").hidden=true;
+          $("run").disabled=false;
+          showJob(job);
+          await refreshSlo();
+        } else {
+          sessionStorage.setItem(activeJobKey,job.job_id);
+          $("refresh-job").hidden=false;
+          $("run").disabled=true;
+          await refreshJob();
+        }
+      } catch(error) { setStatus("打开任务失败："+error.message,"error"); }
+    }
+    async function askRule() {
+      $("ask").disabled=true; $("answer").textContent="正在检索…";
+      try { const result=await api("/v1/answer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:$("question").value,institution,product_line:productLine,as_of:$("asof").value,top_k:5})});
+        const root=$("answer"); root.replaceChildren(el("div",result.answer||"没有找到可引用的模拟规则。","answer"));
+        if(result.citations&&result.citations.length) root.append(el("pre",JSON.stringify(result.citations,null,2)));
+        root.append(el("div","模拟回答始终需要审核员核对。","muted"));
+      } catch(error) { $("answer").textContent=error.message; }
+      finally { $("ask").disabled=false; }
+    }
+    $("run").addEventListener("click",runJob); $("refresh-job").addEventListener("click",refreshJob); $("refresh-slo").addEventListener("click",refreshSlo); $("refresh-history").addEventListener("click",refreshHistory); $("ask").addEventListener("click",askRule);
+    $("scenario").addEventListener("change",()=>$("scenario-description").textContent=scenarioDescriptions[$("scenario").value]);
+    $("scenario").addEventListener("change",()=>{
+      const scenario=$("scenario").value;
+      $("asof").value=scenario==="rule-evidence-missing"?"2025-12-31":"2026-10-03";
+    });
+    if(location.protocol==="file:") {
+      $("file-warning").hidden=false;
+      ["run","refresh-slo","ask"].forEach(id=>$(id).disabled=true);
+      setStatus("当前页面未连接到本地预审 API。请按上方说明启动服务。","warn");
+      $("slo-status").textContent="等待本地 API 服务启动";
+      $("answer").textContent="请通过 http://127.0.0.1:8080/ 访问工作台后再查询模拟规则。";
+    } else {
+      refreshSlo();
+      refreshHistory();
+      const activeJob=sessionStorage.getItem(activeJobKey);
+      if(activeJob) {
+        $("job-id").textContent="任务号 "+activeJob;
+        $("refresh-job").hidden=false;
+        $("run").disabled=true;
+        setStatus("检测到上次未结束的任务。点击“刷新任务状态”继续查询。","warn");
+      }
+    }
+  </script>
+</body>
+</html>

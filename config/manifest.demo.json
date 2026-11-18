@@ -1,0 +1,60 @@
+{
+  "environment": "synthetic-demo",
+  "documents": [
+    {
+      "doc_id": "DEMO-PRECHECK-BOUNDARIES",
+      "source": "demo-precheck-boundaries.md",
+      "title": "模拟制度：贷前材料预审辅助边界",
+      "version": "demo-1.0",
+      "status": "approved",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "institution": "DEMO_ONLY",
+      "scope": {"product_line": ["DEMO_PERSONAL_BUSINESS_LOAN"]}
+    },
+    {
+      "doc_id": "DEMO-MATERIAL-CHECKLIST",
+      "source": "demo-material-checklist.md",
+      "title": "模拟清单：个人经营贷预审材料",
+      "version": "demo-1.0",
+      "status": "approved",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "institution": "DEMO_ONLY",
+      "scope": {"product_line": ["DEMO_PERSONAL_BUSINESS_LOAN"]}
+    },
+    {
+      "doc_id": "DEMO-FIELD-COMPARISON",
+      "source": "demo-field-comparison-rules.md",
+      "title": "模拟规则：字段差异与证据展示",
+      "version": "demo-1.0",
+      "status": "approved",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "institution": "DEMO_ONLY",
+      "scope": {"product_line": ["DEMO_PERSONAL_BUSINESS_LOAN"]}
+    },
+    {
+      "doc_id": "DEMO-CONFLICT-RULE-A",
+      "source": "demo-conflict-rule-a.md",
+      "title": "模拟冲突规则 A：差异记录方式",
+      "version": "demo-1.0",
+      "status": "approved",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "institution": "DEMO_ONLY",
+      "scope": {"product_line": ["DEMO_CONFLICT_TEST_PRODUCT"]}
+    },
+    {
+      "doc_id": "DEMO-CONFLICT-RULE-B",
+      "source": "demo-conflict-rule-b.md",
+      "title": "模拟冲突规则 B：差异记录方式",
+      "version": "demo-1.0",
+      "status": "approved",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "institution": "DEMO_ONLY",
+      "scope": {"product_line": ["DEMO_CONFLICT_TEST_PRODUCT"]}
+    }
+  ]
+}

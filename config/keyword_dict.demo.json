@@ -1,0 +1,29 @@
+{
+  "version": "demo-1.0",
+  "terms": [
+    {
+      "standard_term": "收入证明",
+      "synonyms": ["收入材料", "工资证明", "工资流水", "收入流水"],
+      "abbreviations": [],
+      "colloquial": ["工资条"],
+      "common_typos": [],
+      "tag": "income"
+    },
+    {
+      "standard_term": "身份证明",
+      "synonyms": ["身份证材料", "身份证正反面", "证件材料"],
+      "abbreviations": [],
+      "colloquial": [],
+      "common_typos": [],
+      "tag": "identity"
+    },
+    {
+      "standard_term": "经营用途说明",
+      "synonyms": ["经营用途材料", "用途说明"],
+      "abbreviations": [],
+      "colloquial": ["经营说明"],
+      "common_typos": [],
+      "tag": "business_purpose"
+    }
+  ]
+}
